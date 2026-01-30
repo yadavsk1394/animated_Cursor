@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rainbow Fire Smoke Cursor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+html,body{
+    margin:0;
+    padding:0;
+    background:#05060a;
+    overflow:hidden;
+    cursor:none;
+    font-family:Arial;
+}
+
+h1{
+    position:absolute;
+    top:40%;
+    width:100%;
+    text-align:center;
+    color:white;
+    opacity:.8;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔥Hi This is Sushil Kumar Yadav <br /> Rainbow Fire Smoke Cursor Trail</h1>
+<canvas id="canvas"></canvas>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let points = [];
+const trailTime = 1000; // 1 second
+
+window.addEventListener("resize", ()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+document.addEventListener("mousemove", e => {
+
+    points.push({
+        x: e.clientX,
+        y: e.clientY,
+        time: Date.now(),
+        hue: Math.random()*360
+    });
+
+});
+
+// MAIN LOOP
+function animate(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    let now = Date.now();
+
+    // Remove old points
+    points = points.filter(p => now - p.time < trailTime);
+
+    for(let i=1;i<points.length;i++){
+
+        let p1 = points[i-1];
+        let p2 = points[i];
+
+        let life = 1 - (now - p2.time)/trailTime;
+
+        // RAINBOW FIRE LINE
+        ctx.beginPath();
+        ctx.moveTo(p1.x,p1.y);
+        ctx.lineTo(p2.x,p2.y);
+
+        ctx.lineWidth = 12 * life;
+        ctx.strokeStyle = `hsla(${p2.hue},100%,60%,${life})`;
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = `hsla(${p2.hue},100%,60%,1)`;
+        ctx.stroke();
+
+        // FIRE CORE
+        ctx.beginPath();
+        ctx.arc(p2.x,p2.y,6*life,0,Math.PI*2);
+        ctx.fillStyle = `rgba(255,120,0,${life})`;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "orange";
+        ctx.fill();
+
+        // SMOKE PARTICLE
+        ctx.beginPath();
+        ctx.arc(
+            p2.x + Math.random()*10-5,
+            p2.y + Math.random()*10-5,
+            15 * life,
+            0, Math.PI*2
+        );
+        ctx.fillStyle = `rgba(150,150,150,${life*0.2})`;
+        ctx.shadowBlur = 0;
+        ctx.fill();
+
+    }
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+// Disable on mobile
+if("ontouchstart" in window){
+    document.body.style.cursor="default";
+    canvas.style.display="none";
+}
+
+</script>
+
+</body>
+</html>
